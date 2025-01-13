@@ -9,7 +9,7 @@ const printCompilationMessage = require('./compilation.config.js');
 
 module.exports = (_, argv) => ({
   output: {
-    publicPath: "http://localhost:8081/",
+    publicPath: "http://localhost:3000/",
   },
 
   resolve: {
@@ -17,7 +17,7 @@ module.exports = (_, argv) => ({
   },
 
   devServer: {
-    port: 8081,
+    port: 3000,
     historyApiFallback: true,
     watchFiles: [path.resolve(__dirname, 'src')],
     onListening: function (devServer) {
@@ -62,18 +62,22 @@ module.exports = (_, argv) => ({
 
   plugins: [
     new ModuleFederationPlugin({
-      name: "remote",
+      name: "react_host",
       filename: "remoteEntry.js",
-      remotes: {},
+      remotes: {
+         remote : "remote@http://localhost:8081/remoteEntry.js"
+      },
       exposes: {
-        "./Counter" : "./src/Counter.jsx",
-        "./CounterNew" : "./src/CounterNew.jsx",
       },
       shared: {
         ...deps,
-        "solid-js": {
+        react: {
           singleton: true,
-          requiredVersion: deps["solid-js"],
+          requiredVersion: deps.react,
+        },
+        "react-dom": {
+          singleton: true,
+          requiredVersion: deps["react-dom"],
         },
       },
     }),
